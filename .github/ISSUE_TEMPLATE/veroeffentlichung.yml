@@ -1,0 +1,24 @@
+name: Veröffentlichung beantragen
+description: Bitte dieses Formular ausfüllen, um eine Veröffentlichung zu beantragen
+title: "[Veröffentlichung] Titel hier"
+labels: ["veröffentlichung", "prüfen"]
+assignees:
+  - morabiei
+
+body:
+  - type: input
+    id: grund
+    attributes:
+      label: Grund der Veröffentlichung
+      description: Warum soll das veröffentlicht werden?
+      placeholder: z. B. neue Version, Sicherheitsfix etc.
+    validations:
+      required: true
+
+  - type: textarea
+    id: details
+    attributes:
+      label: Weitere Details
+      description: Was genau soll veröffentlicht werden?
+    validations:
+      required: false
