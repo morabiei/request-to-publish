@@ -1,0 +1,51 @@
+name: Request to Publish
+description: Submit a request to publish an issue on the public board.
+title: "[Request to Publish] "
+labels: ["publish-request"]
+assignees:
+  - morabiei
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 📝 Request to Publish
+        Please fill in the details below to request publication.
+
+  - type: input
+    id: title
+    attributes:
+      label: Title
+      description: Enter the title of the issue to be published.
+      placeholder: e.g., Bug in login system
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: Provide a clear description of the issue.
+      placeholder: Describe the issue in detail.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: How urgent is this issue?
+      options:
+        - Low
+        - Medium
+        - High
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: consent
+    attributes:
+      label: Confirmation
+      description: Please confirm the following before submitting.
+      options:
+        - label: I confirm that this issue is appropriate for publication.
+          required: true
