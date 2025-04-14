@@ -1,24 +1,61 @@
-name: Veröffentlichung beantragen
-description: Bitte dieses Formular ausfüllen, um eine Veröffentlichung zu beantragen
-title: "[Veröffentlichung] Titel hier"
-labels: ["veröffentlichung", "prüfen"]
-assignees:
-  - morabiei
+name: "📨 Request to Publish"
+about: "Use this form to submit a request for publishing content."
+title: "[Request] Publish ..."
+labels: ["request"]
+assignees: []
 
 body:
-  - type: input
-    id: grund
+  - type: markdown
     attributes:
-      label: Grund der Veröffentlichung
-      description: Warum soll das veröffentlicht werden?
-      placeholder: z. B. neue Version, Sicherheitsfix etc.
+      value: |
+        ## 📝 Publish Request Form
+        Please fill out the following details to request publication.
+
+  - type: input
+    id: title
+    attributes:
+      label: Title
+      description: What's the title of the content you'd like to publish?
+      placeholder: "My amazing feature"
     validations:
       required: true
 
   - type: textarea
-    id: details
+    id: description
     attributes:
-      label: Weitere Details
-      description: Was genau soll veröffentlicht werden?
+      label: Description
+      description: Give us a short summary of what you're trying to publish.
+      placeholder: "This is a new feature that allows users to..."
     validations:
-      required: false
+      required: true
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: Category
+      description: Select the type of content.
+      options:
+        - Blog Post
+        - Feature Announcement
+        - Technical Documentation
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: author
+    attributes:
+      label: Author
+      description: Who's the main author?
+      placeholder: "yourname123"
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: confirmation
+    attributes:
+      label: Confirmation
+      description: Please confirm the following:
+      options:
+        - label: I confirm that the content is original and ready to be reviewed.
+          required: true
