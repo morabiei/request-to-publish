@@ -30,7 +30,8 @@ jobs:
         run: |
           ORG="${{ steps.parse.outputs.org }}"
           echo "Checking organization: $ORG"
-          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" https://api.github.com/orgs/$ORG)
+          RESPONSE=$(curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" -s -w "%{http_code}" -o response.json https://api.github.com/orgs/$ORG)
+          echo "Response Body: $(cat response.json)"
           echo "status_code=$RESPONSE" >> $GITHUB_OUTPUT
 
       - name: Comment on the issue
