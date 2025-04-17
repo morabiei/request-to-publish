@@ -1,10 +1,12 @@
 ---
 name: FOSS Contribution Request
-description: Request to contribute to an open source project following the company FOSS contribution policy.
+description: "Request to contribute to an open source project following the company FOSS contribution policy."
 title: "[FOSS Contribution] <Short description of the change>"
-labels: ["foss", "contribution-request"]
+labels:
+  - "foss"
+  - "contribution-request"
 assignees:
-  - your-org-foss-responsible
+  - "your-org-foss-responsible"
 
 body:
   - type: markdown
@@ -16,37 +18,37 @@ body:
   - type: input
     id: project-name
     attributes:
-      label: Project Name
-      placeholder: 
+      label: "Project Name"
+      placeholder: ""
 
   - type: input
     id: project-url
     attributes:
-      label: Project URL
-      placeholder: 
+      label: "Project URL"
+      placeholder: ""
 
   - type: input
     id: target-org
     attributes:
-      label: GitHub Organization (Personal or Corporate)
-      description: In which GitHub organization will the fork live and where will you contribute from?
-      placeholder: e.g. your-org, your-username
+      label: "GitHub Organization (Personal or Corporate)"
+      description: "In which GitHub organization will the fork live and where will you contribute from?"
+      placeholder: "e.g. your-org, your-username"
 
   - type: input
     id: target-repo
     attributes:
-      label: Repository URL
-      placeholder: 
+      label: "Repository URL"
+      placeholder: ""
 
   - type: dropdown
     id: foss-platform
     attributes:
-      label: Strategic FOSS Platform
-      description: Select the platform you are contributing on
+      label: "Strategic FOSS Platform"
+      description: "Select the platform you are contributing on"
       options:
-        - GitHub (approved)
-        - GitLab (approved)
-        - Other (requires approval)
+        - "GitHub (approved)"
+        - "GitLab (approved)"
+        - "Other (requires approval)"
     validations:
       required: true
 
@@ -59,36 +61,36 @@ body:
   - type: dropdown
     id: foss-license
     attributes:
-      label: FOSS License used
+      label: "FOSS License used"
       options:
-        - Apache 2.0
-        - MIT
-        - GPL
-        - Other
+        - "Apache 2.0"
+        - "MIT"
+        - "GPL"
+        - "Other"
     validations:
       required: true
 
   - type: checkboxes
     id: prerequisites
     attributes:
-      label: Qualification & Legal Checklist
+      label: "Qualification & Legal Checklist"
       options:
-        - label: The contributor holds a valid **FOSS Driver’s License Certification**
-        - label: Contributor has been **nominated** to contribute FOSS
-        - label: Contributor received instruction on legal and operational FOSS guidelines
-        - label: Contributor is onboarded into the **[CompanyName] GitHub Organization**
-        - label: Contributor has a valid GitHub account
-        - label: Rights to contribute the code are **clearly owned** by the company
-        - label: No license conflicts or IP risks (license scan complete)
-        - label: Peer code review has been completed
-        - label: Code contains no personal data, trademarks, or confidential information
-        - label: Contribution includes correct legal notice and uses "on-behalf-of" if applicable
+        - label: "The contributor holds a valid **FOSS Driver’s License Certification**"
+        - label: "Contributor has been **nominated** to contribute FOSS"
+        - label: "Contributor received instruction on legal and operational FOSS guidelines"
+        - label: "Contributor is onboarded into the **[CompanyName] GitHub Organization**"
+        - label: "Contributor has a valid GitHub account"
+        - label: "Rights to contribute the code are **clearly owned** by the company"
+        - label: "No license conflicts or IP risks (license scan complete)"
+        - label: "Peer code review has been completed"
+        - label: "Code contains no personal data, trademarks, or confidential information"
+        - label: "Contribution includes correct legal notice and uses 'on-behalf-of' if applicable"
 
   - type: textarea
     id: notes
     attributes:
-      label: Additional Notes / Legal Questions
-      placeholder: Optional: Any open questions, legal concerns, or special requirements.
+      label: "Additional Notes / Legal Questions"
+      placeholder: "Optional: Any open questions, legal concerns, or special requirements."
 
   - type: markdown
     attributes:
