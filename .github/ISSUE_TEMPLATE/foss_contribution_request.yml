@@ -19,13 +19,13 @@ body:
     id: project-name
     attributes:
       label: "Project Name"
-      placeholder: ""
+      placeholder: "e.g. AwesomeProject"
 
   - type: input
     id: project-url
     attributes:
       label: "Project URL"
-      placeholder: ""
+      placeholder: "e.g. https://github.com/user/repository"
 
   - type: input
     id: target-org
@@ -38,7 +38,7 @@ body:
     id: target-repo
     attributes:
       label: "Repository URL"
-      placeholder: ""
+      placeholder: "e.g. https://github.com/user/repository"
 
   - type: dropdown
     id: foss-platform
