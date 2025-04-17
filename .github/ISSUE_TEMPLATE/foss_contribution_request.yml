@@ -78,7 +78,7 @@ body:
         - label: "The contributor holds a valid **FOSS Driver’s License Certification**"
         - label: "Contributor has been **nominated** to contribute FOSS"
         - label: "Contributor received instruction on legal and operational FOSS guidelines"
-        - label: "Contributor is onboarded into the **[CompanyName] GitHub Organization**"
+        - label: "Contributor is onboarded into the Mercedes-Benz GitHub Organization"
         - label: "Contributor has a valid GitHub account"
         - label: "Rights to contribute the code are **clearly owned** by the company"
         - label: "No license conflicts or IP risks (license scan complete)"
