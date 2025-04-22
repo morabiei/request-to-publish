@@ -23,7 +23,7 @@ body:
       placeholder: "e.g. AwesomeProject"
 
 
-        - type: input
+  - type: input
     id: internal-repo
     attributes:
       label: " internal repository for development and quality checks (e.g. Github enterprise)"
