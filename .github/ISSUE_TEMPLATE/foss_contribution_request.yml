@@ -19,12 +19,14 @@ body:
     id: project-name
     attributes:
       label: "Project Name"
+      description: "Please provide the name of the open-source project you want to contribute to."
       placeholder: "e.g. AwesomeProject"
 
   - type: input
     id: project-url
     attributes:
       label: "Project URL"
+      description: " Please provide the GitHub URL of the repository you want to contribute to."
       placeholder: "e.g. https://github.com/user/repository"
 
   - type: input
