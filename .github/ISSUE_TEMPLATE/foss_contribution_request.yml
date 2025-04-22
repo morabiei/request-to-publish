@@ -37,8 +37,8 @@ body:
   - type: input
     id: target-repo
     attributes:
-      label: "Repository URL"
-      placeholder: "e.g. https://github.com/user/repository"
+      label: "User ID"
+      placeholder: "e.g. user_9283"
 
   - type: dropdown
     id: foss-platform
