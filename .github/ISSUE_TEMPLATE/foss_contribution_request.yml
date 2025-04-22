@@ -65,11 +65,7 @@ body:
         ## ✅ Contributor Requirements
         Please confirm the contributor meets all requirements for contributing.
 
-
-
-
-
-  - type: checkboxes
+ - type: checkboxes
     id: prerequisites
     attributes:
       label: "Qualification & Legal Checklist"
