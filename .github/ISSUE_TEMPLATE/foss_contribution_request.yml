@@ -24,7 +24,7 @@ body:
 
 
         - type: input
-    id: internal repository for development and quality checks (e.g. Github Enterprise)
+    id: internal-repo
     attributes:
       label: " internal repository for development and quality checks (e.g. Github enterprise)"
       placeholder: "e.g. https://github.company.com/org/project-repo"
