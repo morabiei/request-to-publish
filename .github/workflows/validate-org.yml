@@ -1,0 +1,51 @@
+name: Validate GitHub Organization
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  validate-org:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+
+    steps:
+      - name: Extract GitHub Org from Issue
+        id: extract
+        run: |
+          echo "Extracting GitHub organization..."
+          ORG=$(echo "${{ github.event.issue.body }}" | grep -Eo 'github\.com/[^/"]+' | cut -d'/' -f2)
+          echo "Extracted Organization: $ORG"
+          echo "ORG=$ORG" >> $GITHUB_OUTPUT
+
+      - name: Validate GitHub Org
+        id: validate
+        run: |
+          echo "Validating organization..."
+          ORG="${{ steps.extract.outputs.ORG }}"
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://api.github.com/orgs/$ORG)
+          echo "API Status Code: $STATUS"
+          if [ "$STATUS" -eq 200 ]; then
+            echo "ORG_VALID=true" >> $GITHUB_OUTPUT
+          else
+            echo "ORG_VALID=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Comment on Issue
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const org = '${{ steps.extract.outputs.ORG }}';
+            const isValid = '${{ steps.validate.outputs.ORG_VALID }}' === 'true';
+            const message = isValid 
+              ? `✅ The GitHub organization **${org}** is valid.` 
+              : `❌ The GitHub organization **${org}** could not be found. Please check the spelling or make sure it exists.`;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: message
+            });
