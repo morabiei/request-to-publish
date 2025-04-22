@@ -11,12 +11,14 @@ jobs:
       issues: write
 
     steps:
-      - name: Extract GitHub Org from Issue
-        id: extract
-        run: |
-          echo "Extracting GitHub organization..."
-          ORG=$(echo "${{ github.event.issue.body }}" | grep -Eo 'github\.com/[^/"]+' | cut -d'/' -f2)
-          echo "ORG=$ORG" >> $GITHUB_OUTPUT
+  - name: Extract GitHub Org from Issue
+  id: extract
+  run: |
+    echo "Extracting GitHub organization..."
+    ORG=$(echo "${{ github.event.issue.body }}" | grep -Eo 'github\.com/[^/"]+' | cut -d'/' -f2)
+    echo "Extracted Organization: $ORG"
+    echo "ORG=$ORG" >> $GITHUB_OUTPUT
+
 
       - name: Validate GitHub Org
         id: validate
