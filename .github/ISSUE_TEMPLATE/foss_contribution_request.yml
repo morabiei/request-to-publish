@@ -79,7 +79,7 @@ body:
         - label: "Contributor has been [**nominated**](https://fosswik-confluence.dot.app.corpintra.net/display/0064/IT+Shop+Approval) to contribute FOSS"
         - label: "Contributor is onboarded into Contribution platform such as: [Mercedes-Benz@GitHub.com](https://fosswik-confluence.dot.app.corpintra.net/display/0064/Mercedes-Benz@GitHub.com) specially in [pull-request section](https://fosswik-confluence.dot.app.corpintra.net/display/0064/Pull-Request+Section) and [issues, comments, private message](https://fosswik-confluence.dot.app.corpintra.net/display/0064/Issues%2C+Comments%2C+Private+Messages)"
         - label: "Rights to contribute the code are **clearly owned** by the company"
-        - label: "Business feasibility for contribute case (Done)
+        - label: "Business feasibility for the contribution case has been evaluated (Completed)"
         - label: "No license conflicts or IP risks (license scan complete)"
         - label: "Peer code review has been completed"
         - label: "Commit messages include author and copyright information"
