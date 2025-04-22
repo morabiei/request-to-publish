@@ -40,7 +40,7 @@ body:
     attributes:
       label: "GitHub Organization (Personal or Corporate)"
       description: "In which GitHub organization will the fork live and where will you contribute from?"
-      placeholder: "e.g. your-org, your-username"
+      placeholder: "e.g. https://github.com/yourusername or https://github.com/yourorganization"
 
   - type: input
     id: target-repo
