@@ -22,6 +22,13 @@ body:
       description: "Please provide the name of the open-source project you want to contribute to."
       placeholder: "e.g. AwesomeProject"
 
+
+        - type: input
+    id: internal repository for development and quality checks (e.g. Github Enterprise)
+    attributes:
+      label: " internal repository for development and quality checks (e.g. Github enterprise)"
+      placeholder: "e.g. https://github.company.com/org/project-repo"
+
   - type: input
     id: project-url
     attributes:
