@@ -65,7 +65,7 @@ body:
   id: license
   attributes:
     label: "License ID"
-    description: "Please enter the license ID (e.g., Apache-2.0, MIT). You can find the full list here: [License Overview](https://dein-link-zur-liste.de)"
+    description: "Please enter the license ID (e.g., Apache-2.0, MIT). You can find the full list here: [License Overview](https://disco.app.corpintra.net/#/dashboard/licenses)"
     placeholder: "e.g., Apache-2.0"
   validations:
     required: true
