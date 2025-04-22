@@ -61,7 +61,15 @@ body:
         ## ✅ Contributor Requirements
         Please confirm the contributor meets all requirements for contributing.
 
-        
+  - type: input
+  id: license
+  attributes:
+    label: "License ID"
+    description: "Please enter the license ID (e.g., Apache-2.0, MIT). You can find the full list here: [License Overview](https://dein-link-zur-liste.de)"
+    placeholder: "e.g., Apache-2.0"
+  validations:
+    required: true
+     
   - type: checkboxes
     id: prerequisites
     attributes:
