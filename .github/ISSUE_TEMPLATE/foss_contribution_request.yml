@@ -48,21 +48,15 @@ body:
     id: target-repo
     attributes:
       label: "User ID"
-      description: "Enter the contributor’s user identifier."
+      description: "Please enter the contributor’s user identifier."
       placeholder: "e.g. user_9283"
 
-  - type: dropdown
+  - type: markdown
     id: foss-platform
     attributes:
       label: "Strategic FOSS Platform"
-      description: "Select the platform you are contributing on"
-      options:
-        - "GitHub (approved)"
-        - "GitLab (approved)"
-        - "Other (requires approval)"
-    validations:
-      required: true
-
+      description: "please make sure you are contributing on an[approved platform](https://fosswik-confluence.dot.app.corpintra.net/display/0064/CONTRIBUTE+Open+Source)"
+      
   - type: markdown
     attributes:
       value: |
