@@ -1,4 +1,3 @@
----
 name: FOSS Contribution Request
 description: "Request to contribute to an open source project following the company FOSS contribution policy."
 title: "[FOSS Contribution] <Short description of the change>"
@@ -22,11 +21,10 @@ body:
       description: "Please provide the name of the open-source project you want to contribute to."
       placeholder: "e.g. AwesomeProject"
 
-
   - type: input
     id: internal-repo
     attributes:
-      label: " internal repository for development and quality checks (e.g. GitHub Enterprise)"
+      label: "Internal repository for development and quality checks (e.g. GitHub Enterprise)"
       description: "Please provide the URL of the internal repository used for development and quality assurance, typically hosted on a platform like GitHub Enterprise."
       placeholder: "e.g. https://github.company.com/org/project-repo"
 
@@ -34,7 +32,7 @@ body:
     id: project-url
     attributes:
       label: "Project URL"
-      description: " Please provide the GitHub URL of the repository you want to contribute to."
+      description: "Please provide the GitHub URL of the repository you want to contribute to."
       placeholder: "e.g. https://github.com/user/repository"
 
   - type: input
@@ -51,29 +49,26 @@ body:
       description: "Please enter the contributor’s user identifier."
       placeholder: "e.g. user_9283"
 
- - type: markdown
-  attributes:
-    value: |
-      ### Strategic FOSS Platform
+  - type: markdown
+    attributes:
+      value: |
+        ### Strategic FOSS Platform
+        Please make sure you are contributing on an [approved platform](https://fosswik-confluence.dot.app.corpintra.net/display/0064/CONTRIBUTE+Open+Source).
 
-      Please make sure you are contributing on an [approved platform](https://fosswik-confluence.dot.app.corpintra.net/display/0064/CONTRIBUTE+Open+Source).
-
-      
   - type: markdown
     attributes:
       value: |
         ## ✅ Contributor Requirements
         Please confirm the contributor meets all requirements for contributing.
 
- - type: checkboxes
+  - type: checkboxes
     id: prerequisites
     attributes:
       label: "Qualification & Legal Checklist"
       options:
         - label: "The contributor holds a valid **FOSS Driver’s License Certification**"
         - label: "Contributor has been **nominated** to contribute FOSS"
-      
-        - label: "Contributor is [onboarded](https://fosswik-confluence.dot.app.corpintra.net/display/0064/Onboarding) into Contribution platform "
+        - label: "Contributor is [onboarded](https://fosswik-confluence.dot.app.corpintra.net/display/0064/Onboarding) into Contribution platform"
         - label: "Rights to contribute the code are **clearly owned** by the company"
         - label: "No license conflicts or IP risks (license scan complete)"
         - label: "Peer code review has been completed"
