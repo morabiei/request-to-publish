@@ -26,7 +26,8 @@ body:
   - type: input
     id: internal-repo
     attributes:
-      label: " internal repository for development and quality checks (e.g. Github enterprise)"
+      label: " internal repository for development and quality checks (e.g. GitHub Enterprise)"
+      description: "Please provide the URL of the internal repository used for development and quality assurance, typically hosted on a platform like GitHub Enterprise."
       placeholder: "e.g. https://github.company.com/org/project-repo"
 
   - type: input
