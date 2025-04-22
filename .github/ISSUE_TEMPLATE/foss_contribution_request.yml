@@ -65,18 +65,7 @@ body:
         ## ✅ Contributor Requirements
         Please confirm the contributor meets all requirements for contributing.
 
- - type: dropdown
-    id: license
-    attributes:
-      label: "Choose a License"
-      description: "Select the license that applies to this project"
-      required: true
-      options: 
-      - AES256 License
-      - AMSFonts license
-      - ANTLR Software Rights Notice
-      - ANTLR Software Rights Notice with license fallback
-      - Academic Free License v1.1
+
 
 
 
