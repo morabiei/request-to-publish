@@ -32,14 +32,14 @@ body:
     id: project-url
     attributes:
       label: "Project URL"
-      description: "Please provide the GitHub URL of the repository you want to contribute to."
+      description: "Please provide the URL of the repository you want to contribute to."
       placeholder: "e.g. https://github.com/user/repository"
 
   - type: input
     id: target-org
     attributes:
       label: "GitHub Organization (Personal or Corporate)"
-      description: "In which GitHub organization will the fork live and where will you contribute from?"
+      description: "From which organisation will you send the pull-request to the upstream project"
       placeholder: "e.g. https://github.com/yourusername or https://github.com/yourorganization"
 
   - type: input
@@ -53,7 +53,7 @@ body:
     attributes:
       value: |
         ### Strategic FOSS Platform
-        Please make sure you are contributing on an [approved platform](https://fosswik-confluence.dot.app.corpintra.net/display/0064/CONTRIBUTE+Open+Source).
+        Please make sure you are contributing on an [approved platform](https://fosswik-confluence.dot.app.corpintra.net/display/0064/Approved+FOSS+Platforms).
 
   - type: input
     id: license
@@ -76,11 +76,14 @@ body:
       label: "Qualification & Legal Checklist"
       options:
         - label: "The contributor holds a valid **FOSS Driver’s License Certification**"
-        - label: "Contributor has been **nominated** to contribute FOSS"
-        - label: "Contributor is [onboarded](https://fosswik-confluence.dot.app.corpintra.net/display/0064/Onboarding) into Contribution platform"
+        - label: "Contributor has been [**nominated**](https://fosswik-confluence.dot.app.corpintra.net/display/0064/IT+Shop+Approval) to contribute FOSS"
+        - label: "Contributor is onboarded into Contribution platform such as: [Mercedes-Benz@GitHub.com](https://fosswik-confluence.dot.app.corpintra.net/display/0064/Mercedes-Benz@GitHub.com) specially in [pull-request section](https://fosswik-confluence.dot.app.corpintra.net/display/0064/Pull-Request+Section) and [issues, comments, private message](https://fosswik-confluence.dot.app.corpintra.net/display/0064/Issues%2C+Comments%2C+Private+Messages)"
         - label: "Rights to contribute the code are **clearly owned** by the company"
+        - label: "Business feasibility for contribute case (Done)
         - label: "No license conflicts or IP risks (license scan complete)"
         - label: "Peer code review has been completed"
+        - label: "Commit messages include author and copyright information"
+        - label: "If contributed under CLA, check if available in CLA database"
         - label: "Code contains no personal data, trademarks, or confidential information"
         - label: "Contribution includes correct legal notice and uses ['on-behalf-of'](https://fosswik-confluence.dot.app.corpintra.net/pages/viewpage.action?pageId=21314791) if applicable"
 
