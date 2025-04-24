@@ -1,0 +1,85 @@
+name: Add FOSS Request to Project Board
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: read
+  issues: read
+  projects: write
+
+jobs:
+  add-to-board:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Extract and add issue data to GitHub Project
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          ISSUE_NUMBER="${{ github.event.issue.number }}"
+          REPO="toyota/${{ github.event.repository.name }}"
+          PROJECT_ID="PROVIDE_PROJECT_ID"
+          TITLE="${{ github.event.issue.title }}"
+          
+          echo "📥 Reading issue data..."
+
+          # Get issue body
+          ISSUE_BODY=$(gh issue view "$ISSUE_NUMBER" --repo "$REPO" --json body -q .body)
+
+          # Extract fields manually (you can improve this regex later)
+          PROJECT_NAME=$(echo "$ISSUE_BODY" | grep -A1 "Project Name" | tail -n1 | xargs)
+          LICENSE=$(echo "$ISSUE_BODY" | grep -A1 "License ID" | tail -n1 | xargs)
+          INTERNAL_REPO=$(echo "$ISSUE_BODY" | grep -A1 "Internal repository" | tail -n1 | xargs)
+          
+          echo "🎯 Parsed: $PROJECT_NAME / $LICENSE"
+
+          # Create a project item
+          ITEM_ID=$(gh api graphql -F projectId="$PROJECT_ID" -F title="$TITLE" -f query='
+            mutation($projectId: ID!, $title: String!) {
+              addProjectV2ItemByTitle(input: {
+                projectId: $projectId
+                title: $title
+              }) {
+                item {
+                  id
+                }
+              }
+            }
+          ' --jq '.data.addProjectV2ItemByTitle.item.id')
+
+          echo "✅ Created item: $ITEM_ID"
+
+          # Update fields (use your actual field IDs)
+          gh api graphql -F itemId="$ITEM_ID" -F value="$PROJECT_NAME" -F fieldId="PROJECT_NAME_FIELD_ID" -f query='
+            mutation($itemId: ID!, $fieldId: ID!, $value: String!) {
+              updateProjectV2ItemFieldValue(input: {
+                itemId: $itemId
+                fieldId: $fieldId
+                value: {
+                  text: $value
+                }
+              }) {
+                projectV2Item {
+                  id
+                }
+              }
+            }
+          '
+
+          gh api graphql -F itemId="$ITEM_ID" -F value="$LICENSE" -F fieldId="LICENSE_FIELD_ID" -f query='
+            mutation($itemId: ID!, $fieldId: ID!, $value: String!) {
+              updateProjectV2ItemFieldValue(input: {
+                itemId: $itemId
+                fieldId: $fieldId
+                value: {
+                  text: $value
+                }
+              }) {
+                projectV2Item {
+                  id
+                }
+              }
+            }
+          '
