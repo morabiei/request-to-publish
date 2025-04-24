@@ -1,0 +1,118 @@
+name: Add Issue to Project Board
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  add-to-project:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dynamically add issue to project board
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.PAT }}
+          script: |
+            const issue = context.payload.issue;
+            const owner = context.repo.owner;
+            const projectTitle = "FOSS Contributions"; // Der Name deines Project Boards
+
+            const title = issue.title;
+            const body = issue.body;
+
+            // Felder aus dem Template extrahieren
+            const getField = (label) => {
+              const regex = new RegExp(`${label}\\n\\n(.*?)\\n`, 's');
+              const match = body.match(regex);
+              return match ? match[1].trim() : '';
+            };
+
+            const projectName = getField("Project Name");
+            const internalRepo = getField("Internal repository");
+            const targetOrg = getField("GitHub Organization");
+            const license = getField("License ID");
+
+            // 🔍 Suche das richtige Project V2 anhand des Titels
+            const searchProjects = await github.graphql(`
+              query {
+                organization(login: "${owner}") {
+                  projectsV2(first: 20) {
+                    nodes {
+                      id
+                      title
+                    }
+                  }
+                }
+              }
+            `);
+
+            const project = searchProjects.organization.projectsV2.nodes
+              .find(p => p.title === projectTitle);
+
+            if (!project) {
+              throw new Error(`Project "${projectTitle}" not found`);
+            }
+
+            const projectId = project.id;
+
+            // ➕ Füge das Issue als Item hinzu
+            const itemResult = await github.graphql(`
+              mutation {
+                addProjectV2ItemById(input: {
+                  projectId: "${projectId}",
+                  contentId: "${issue.node_id}"
+                }) {
+                  item {
+                    id
+                  }
+                }
+              }
+            `);
+
+            const itemId = itemResult.addProjectV2ItemById.item.id;
+
+            // 🔍 Hole alle Custom Fields
+            const fieldsQuery = await github.graphql(`
+              query {
+                node(id: "${projectId}") {
+                  ... on ProjectV2 {
+                    fields(first: 50) {
+                      nodes {
+                        id
+                        name
+                      }
+                    }
+                  }
+                }
+              }
+            `);
+
+            const fields = Object.fromEntries(
+              fieldsQuery.node.fields.nodes.map(f => [f.name, f.id])
+            );
+
+            // Hilfsfunktion: Wert setzen
+            const setField = async (fieldName, value) => {
+              if (!fields[fieldName]) return;
+              await github.graphql(`
+                mutation {
+                  updateProjectV2ItemFieldValue(input: {
+                    projectId: "${projectId}",
+                    itemId: "${itemId}",
+                    fieldId: "${fields[fieldName]}",
+                    value: { text: "${value}" }
+                  }) {
+                    projectV2Item {
+                      id
+                    }
+                  }
+                }
+              `);
+            };
+
+            // 📌 Setze alle Felder
+            await setField("Title", title);
+            await setField("Project Name", projectName);
+            await setField("GitHub Organization", targetOrg);
+            await setField("License ID", license);
+            await setField("Internal Repository", internalRepo);
