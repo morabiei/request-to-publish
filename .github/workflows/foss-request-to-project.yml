@@ -1,75 +1,44 @@
-name: Add FOSS Request to Project Board
+- name: Add issue to project
+  uses: actions/github-script@v7
+  env:
+    MY_GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
+  with:
+    script: |
+      const projectId = "PVT_kwHOCMwB1M4A2ttm";
+      const issueId = context.payload.issue.node_id;
 
-on:
-  issues:
-    types: [opened]
+      const fields = {
+        "Project Name": "${{ steps.extract.outputs.projectName }}",
+        "Internal repository": "${{ steps.extract.outputs.internalRepo }}",
+        "Project URL": "${{ steps.extract.outputs.projectUrl }}",
+        "GitHub Organization": "${{ steps.extract.outputs.org }}",
+        "User ID": "${{ steps.extract.outputs.userId }}",
+        "License ID": "${{ steps.extract.outputs.licenseId }}"
+      };
 
-jobs:
-  add-to-project:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Debug the issue body
-        run: echo "${{ github.event.issue.body }}"
-        
-      - name: Extract fields from issue body
-        id: extract
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const body = context.payload.issue.body;
-
-            function extract(label) {
-              const regex = new RegExp(`###?\\s*${label}\\s*\\n([^#\\n]*)`, 'i');
-              const match = body.match(regex);
-              return match ? match[1].trim() : '';
-            }
-
-            return {
-              projectName: extract("Project Name"),
-              internalRepo: extract("Internal repository"),
-              projectUrl: extract("Project URL"),
-              org: extract("GitHub Organization"),
-              userId: extract("User ID"),
-              licenseId: extract("License ID")
-            };
-
-      - name: Add issue to project and set fields
-        uses: actions/github-script@v7
-        env:
-          MY_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          script: |
-            const projectId = "PVT_kwHOCMwB1M4A2ttm"; // ID of your project
-            const issueId = context.payload.issue.node_id;
-            const fields = {
-              "Project Name": "${{ steps.extract.outputs.projectName }}",
-              "Internal repository": "${{ steps.extract.outputs.internalRepo }}",
-              "Project URL": "${{ steps.extract.outputs.projectUrl }}",
-              "GitHub Organization": "${{ steps.extract.outputs.org }}",
-              "User ID": "${{ steps.extract.outputs.userId }}",
-              "License ID": "${{ steps.extract.outputs.licenseId }}"
-            };
-
-            // Add the issue to the project
-            const addToProject = await github.graphql(`
-              mutation($projectId: ID!, $contentId: ID!) {
-                addProjectV2ItemById(input: {
-                  projectId: $projectId,
-                  contentId: $contentId
-                }) {
-                  item {
-                    id
-                  }
-                }
+      try {
+        const addToProject = await github.graphql(`
+          mutation($projectId:ID!, $contentId:ID!) {
+            addProjectV2ItemById(input: {
+              projectId: $projectId,
+              contentId: $contentId
+            }) {
+              item {
+                id
               }
-            `, {
-              projectId,
-              contentId: issueId
-            });
+            }
+          }
+        `, {
+          projectId,
+          contentId: issueId
+        });
 
-            const itemId = addToProject.addProjectV2ItemById.item.id;
+        const itemId = addToProject.addProjectV2ItemById.item.id;
 
-            // Retrieve project fields and update them with the issue data
+        console.log("Project item added:", itemId);
+
+        for (const [name, value] of Object.entries(fields)) {
+          try {
             const fieldData = await github.graphql(`
               query($projectId: ID!) {
                 node(id: $projectId) {
@@ -85,27 +54,32 @@ jobs:
               }
             `, { projectId });
 
-            for (const [name, value] of Object.entries(fields)) {
-              const field = fieldData.node.fields.nodes.find(f => f.name === name);
-              if (!field) continue;
+            const field = fieldData.node.fields.nodes.find(f => f.name === name);
+            if (!field) continue;
 
-              await github.graphql(`
-                mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $value: String!) {
-                  updateProjectV2ItemFieldValue(input: {
-                    projectId: $projectId,
-                    itemId: $itemId,
-                    fieldId: $fieldId,
-                    value: { text: $value }
-                  }) {
-                    projectV2Item {
-                      id
-                    }
+            await github.graphql(`
+              mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $value: String!) {
+                updateProjectV2ItemFieldValue(input: {
+                  projectId: $projectId,
+                  itemId: $itemId,
+                  fieldId: $fieldId,
+                  value: { text: $value }
+                }) {
+                  projectV2Item {
+                    id
                   }
                 }
-              `, {
-                projectId,
-                itemId,
-                fieldId: field.id,
-                value
-              });
-            }
+              }
+            `, {
+              projectId,
+              itemId,
+              fieldId: field.id,
+              value
+            });
+          } catch (error) {
+            console.log(`❌ Fehler beim Setzen von Feld ${name}:`, error.message);
+          }
+        }
+      } catch (error) {
+        console.log('Error adding issue to project:', error.message);
+      }
