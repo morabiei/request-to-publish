@@ -6,15 +6,16 @@ on:
 
 jobs:
   add-to-project:
-    if: contains(github.event.issue.body, 'FOSS Contribution Request')
     runs-on: ubuntu-latest
     steps:
+      - name: Debug the issue body
+        run: echo "${{ github.event.issue.body }}"
+        
       - name: Extract fields from issue body
         id: extract
         uses: actions/github-script@v7
         with:
           script: |
-            const core = require('@actions/core');
             const body = context.payload.issue.body;
 
             function extract(label) {
@@ -23,12 +24,14 @@ jobs:
               return match ? match[1].trim() : '';
             }
 
-            core.setOutput("projectName", extract("Project Name"));
-            core.setOutput("internalRepo", extract("Internal repository"));
-            core.setOutput("projectUrl", extract("Project URL"));
-            core.setOutput("org", extract("GitHub Organization"));
-            core.setOutput("userId", extract("User ID"));
-            core.setOutput("licenseId", extract("License ID"));
+            return {
+              projectName: extract("Project Name"),
+              internalRepo: extract("Internal repository"),
+              projectUrl: extract("Project URL"),
+              org: extract("GitHub Organization"),
+              userId: extract("User ID"),
+              licenseId: extract("License ID")
+            };
 
       - name: Add issue to project and set fields
         uses: actions/github-script@v7
@@ -36,9 +39,8 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           script: |
-            const projectId = "PVT_kwHOCMwB1M4A2ttm";
+            const projectId = "PVT_kwHOCMwB1M4A2ttm"; // ID of your project
             const issueId = context.payload.issue.node_id;
-
             const fields = {
               "Project Name": "${{ steps.extract.outputs.projectName }}",
               "Internal repository": "${{ steps.extract.outputs.internalRepo }}",
@@ -48,7 +50,7 @@ jobs:
               "License ID": "${{ steps.extract.outputs.licenseId }}"
             };
 
-            // Füge das Issue dem Projekt hinzu
+            // Add the issue to the project
             const addToProject = await github.graphql(`
               mutation($projectId: ID!, $contentId: ID!) {
                 addProjectV2ItemById(input: {
@@ -67,7 +69,7 @@ jobs:
 
             const itemId = addToProject.addProjectV2ItemById.item.id;
 
-            // Hole die Feld-IDs im Projekt
+            // Retrieve project fields and update them with the issue data
             const fieldData = await github.graphql(`
               query($projectId: ID!) {
                 node(id: $projectId) {
@@ -85,34 +87,25 @@ jobs:
 
             for (const [name, value] of Object.entries(fields)) {
               const field = fieldData.node.fields.nodes.find(f => f.name === name);
-              if (!field) {
-                console.log(`⚠️ Feld '${name}' nicht gefunden.`);
-                continue;
-              }
+              if (!field) continue;
 
-              try {
-                await github.graphql(`
-                  mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $value: String!) {
-                    updateProjectV2ItemFieldValue(input: {
-                      projectId: $projectId,
-                      itemId: $itemId,
-                      fieldId: $fieldId,
-                      value: { text: $value }
-                    }) {
-                      projectV2Item {
-                        id
-                      }
+              await github.graphql(`
+                mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $value: String!) {
+                  updateProjectV2ItemFieldValue(input: {
+                    projectId: $projectId,
+                    itemId: $itemId,
+                    fieldId: $fieldId,
+                    value: { text: $value }
+                  }) {
+                    projectV2Item {
+                      id
                     }
                   }
-                `, {
-                  projectId,
-                  itemId,
-                  fieldId: field.id,
-                  value
-                });
-
-                console.log(`✅ Feld '${name}' gesetzt.`);
-              } catch (error) {
-                console.log(`❌ Fehler beim Setzen von '${name}':`, error.message);
-              }
+                }
+              `, {
+                projectId,
+                itemId,
+                fieldId: field.id,
+                value
+              });
             }
