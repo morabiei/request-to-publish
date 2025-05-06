@@ -10,8 +10,7 @@ jobs:
     permissions:
       issues: read
       contents: read
-      actions: read
-      projects: write  # wichtig für GitHub Projects v2
+
     steps:
       - name: Parse and fill project fields
         uses: actions/github-script@v7
