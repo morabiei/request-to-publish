@@ -1,0 +1,105 @@
+name: Autofill Project Fields from Issue
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  autofill-project:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: read
+      contents: read
+      actions: read
+      projects: write  # wichtig für GitHub Projects v2
+    steps:
+      - name: Parse and fill project fields
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issueBody = context.payload.issue.body;
+            const issueTitle = context.payload.issue.title;
+            const issueUrl = context.payload.issue.html_url;
+
+            const projectId = "PVT_kwHOCMwB1M4A2ttm"; // Dein Project ID
+            const columnName = "New requests"; // Anfangs-Spalte
+
+            // Hilfsfunktion zum Parsen aus dem Markdown-Template
+            function extractField(label, body) {
+              const regex = new RegExp(`${label}\\n\\n(.+?)\\n`, 'i');
+              const match = body.match(regex);
+              return match ? match[1].trim() : '';
+            }
+
+            const fields = {
+              "Project Name": extractField("Project Name", issueBody),
+              "Internal repository for development and quality checks": extractField("Internal repository for development and quality checks \\(e\\.g\\. GitHub Enterprise\\)", issueBody),
+              "Project URL": extractField("Project URL", issueBody),
+              "GitHub Organization \\(Personal or Corporate\\)": extractField("GitHub Organization \\(Personal or Corporate\\)", issueBody),
+              "User ID": extractField("User ID", issueBody),
+              "License ID": extractField("License ID", issueBody),
+            };
+
+            const { graphql } = require('@octokit/graphql');
+
+            const gqlWithAuth = graphql.defaults({
+              headers: {
+                authorization: `token ${process.env.GITHUB_TOKEN}`,
+              },
+            });
+
+            // Hole alle Project-Fields für Mapping
+            const projectFields = await gqlWithAuth(`
+              query {
+                node(id: "${projectId}") {
+                  ... on ProjectV2 {
+                    fields(first: 20) {
+                      nodes {
+                        id
+                        name
+                        dataType
+                      }
+                    }
+                  }
+                }
+              }
+            `);
+
+            const fieldMap = {};
+            for (const field of projectFields.node.fields.nodes) {
+              fieldMap[field.name] = field.id;
+            }
+
+            // Issue zum Project hinzufügen
+            const addItemRes = await gqlWithAuth(`
+              mutation {
+                addProjectV2ItemById(input: {projectId: "${projectId}", contentId: "${context.payload.issue.node_id}"}) {
+                  item {
+                    id
+                  }
+                }
+              }
+            `);
+
+            const itemId = addItemRes.addProjectV2ItemById.item.id;
+
+            // Fülle die Custom Fields
+            for (const [name, value] of Object.entries(fields)) {
+              const fieldId = fieldMap[name];
+              if (!fieldId || !value) continue;
+
+              await gqlWithAuth(`
+                mutation {
+                  updateProjectV2ItemFieldValue(input: {
+                    projectId: "${projectId}",
+                    itemId: "${itemId}",
+                    fieldId: "${fieldId}",
+                    value: { text: "${value}" }
+                  }) {
+                    projectV2Item {
+                      id
+                    }
+                  }
+                }
+              `);
+            }
