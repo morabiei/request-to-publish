@@ -11,8 +11,7 @@ jobs:
       issues: read
       contents: read
       id-token: write
-      # ✅ DAS FEHLTE
-      project: write
+      projectV2: write
 
     steps:
       - name: Parse and fill project fields
@@ -21,7 +20,7 @@ jobs:
           script: |
             const issue = context.payload.issue;
             const issueBody = issue.body;
-            const projectId = "PVT_kwHOCMwB1M4A2ttm";
+            const projectId = "PVT_kwHOCMwB1M4A2ttm"; // Deine Projekt-ID
 
             function extractField(label, body) {
               const regex = new RegExp(`${label}\\n\\n(.+?)\\n`, 'i');
@@ -57,7 +56,7 @@ jobs:
               return result.data;
             }
 
-            // Step 1: get field IDs
+            // Step 1: Get field IDs
             const fieldQuery = `
               query {
                 node(id: "${projectId}") {
@@ -78,7 +77,7 @@ jobs:
               fieldMap[f.name] = f.id;
             }
 
-            // Step 2: add issue to project
+            // Step 2: Add issue to project
             const addItemMutation = `
               mutation {
                 addProjectV2ItemById(input: { projectId: "${projectId}", contentId: "${issue.node_id}" }) {
@@ -91,7 +90,7 @@ jobs:
             const addItemResult = await graphql(addItemMutation);
             const itemId = addItemResult.addProjectV2ItemById.item.id;
 
-            // Step 3: set field values
+            // Step 3: Set field values
             for (const [name, value] of Object.entries(fields)) {
               const fieldId = fieldMap[name];
               if (!fieldId || !value) continue;
