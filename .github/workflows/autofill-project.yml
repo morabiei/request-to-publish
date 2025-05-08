@@ -1,0 +1,111 @@
+name: Autofill FOSS Contribution to Project Board
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: read
+  issues: read
+  project-write: write
+
+jobs:
+  add-to-project:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Extract issue content and add to project
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const projectId = "PVT_kwHOCMwB1M4A2ttm"; // Dein Project v2 ID
+            const issue = context.payload.issue;
+
+            // Nur reagieren, wenn es das gewünschte Template ist
+            if (!issue.body.includes("## Project Information")) {
+              console.log("Kein passendes Template, wird ignoriert.");
+              return;
+            }
+
+            // Felder extrahieren (einfaches Regex-Parsen)
+            const extract = (label) => {
+              const regex = new RegExp(`\\*\\*${label}:\\*\\*\\s*([\\s\\S]*?)(?=\\n\\*\\*|$)`);
+              const match = issue.body.match(regex);
+              return match ? match[1].trim() : "";
+            };
+
+            const fields = {
+              "User ID": extract("User ID"),
+              "Project Name": extract("Project Name"),
+              "Project URL": extract("Project URL"),
+              "GitHub Organization": extract("GitHub Organization"),
+              "Internal repository": extract("Internal repository for development and quality checks")
+            };
+
+            // Abrufen der Felder aus dem Project Board
+            const projectFields = await github.graphql(`
+              query GetFields($projectId: ID!) {
+                node(id: $projectId) {
+                  ... on ProjectV2 {
+                    fields(first: 20) {
+                      nodes {
+                        id
+                        name
+                      }
+                    }
+                  }
+                }
+              }
+            `, { projectId });
+
+            const fieldMap = {};
+            for (const field of projectFields.node.fields.nodes) {
+              fieldMap[field.name] = field.id;
+            }
+
+            // Hinzufügen des Issues zum Project
+            const addItemRes = await github.graphql(`
+              mutation AddItem($projectId: ID!, $contentId: ID!) {
+                addProjectV2ItemById(input: {
+                  projectId: $projectId,
+                  contentId: $contentId
+                }) {
+                  item {
+                    id
+                  }
+                }
+              }
+            `, {
+              projectId,
+              contentId: issue.node_id,
+            });
+
+            const itemId = addItemRes.addProjectV2ItemById.item.id;
+
+            // Felder aktualisieren
+            for (const [label, value] of Object.entries(fields)) {
+              if (!fieldMap[label] || !value) continue;
+
+              await github.graphql(`
+                mutation SetFieldValue($projectId: ID!, $itemId: ID!, $fieldId: ID!, $value: String!) {
+                  updateProjectV2ItemFieldValue(input: {
+                    projectId: $projectId,
+                    itemId: $itemId,
+                    fieldId: $fieldId,
+                    value: { text: $value }
+                  }) {
+                    projectV2Item {
+                      id
+                    }
+                  }
+                }
+              `, {
+                projectId,
+                itemId,
+                fieldId: fieldMap[label],
+                value
+              });
+            }
+
+            console.log("Item wurde hinzugefügt und Felder aktualisiert.");
