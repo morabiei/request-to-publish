@@ -9,7 +9,6 @@ permissions:
   issues: read
   id-token: write
   pull-requests: read
-  
 
 jobs:
   autofill-project:
@@ -19,32 +18,30 @@ jobs:
         uses: stefanbuck/github-issue-parser@v3
         id: issue-parser
         with:
-          template-path: .github/ISSUE_TEMPLATE/foss-contribution.yml
+          template-path: .github/ISSUE_TEMPLATE/foss-contribution-request.yml
 
       - name: Autofill GitHub Project fields
         uses: actions/github-script@v7
         with:
           script: |
-            const projectId = "PVT_kwHOCMwB1M4A2ttm"; // Dein echtes ProjectV2 ID
+            const projectId = "PVT_kwHOCMwB1M4A2ttm"; // Ersetze durch deine echte ProjectV2 ID
             const issue = context.payload.issue;
             const outputs = {
               "Project Name": "${{ steps.issue-parser.outputs.issueparser_project_name }}",
               "Internal repository": "${{ steps.issue-parser.outputs.issueparser_internal_repository }}",
               "Project URL": "${{ steps.issue-parser.outputs.issueparser_project_url }}",
-              "GitHub Organization": "${{ steps.issue-parser.outputs.issueparser_github_organization }}",
-              "User ID": "${{ steps.issue-parser.outputs.issueparser_user_id }}",
-              "License ID": "${{ steps.issue-parser.outputs.issueparser_license_id }}"
-            };
-
-            const headers = {
-              "Authorization": `Bearer ${process.env.GITHUB_TOKEN}`,
-              "Content-Type": "application/json"
+              "GitHub Organization": "${{ steps.issue-parser.outputs.issueparser_target_org }}",
+              "User ID": "${{ steps.issue-parser.outputs.issueparser_target_repo }}",
+              "License ID": "${{ steps.issue-parser.outputs.issueparser_license }}"
             };
 
             async function graphql(query, variables = {}) {
               const response = await fetch("https://api.github.com/graphql", {
                 method: "POST",
-                headers,
+                headers: {
+                  Authorization: `Bearer ${process.env.GITHUB_TOKEN}`,
+                  "Content-Type": "application/json",
+                },
                 body: JSON.stringify({ query, variables }),
               });
               const result = await response.json();
@@ -55,7 +52,6 @@ jobs:
               return result.data;
             }
 
-            // 1. Felder abrufen
             const fieldQuery = `
               query {
                 node(id: "${projectId}") {
@@ -73,12 +69,13 @@ jobs:
               }
             `;
             const fieldData = await graphql(fieldQuery);
+            if (!fieldData?.node) throw new Error("❌ Project ID ungültig oder kein Zugriff");
+
             const fieldMap = {};
             for (const f of fieldData.node.fields.nodes) {
               fieldMap[f.name] = f.id;
             }
 
-            // 2. Issue dem Projekt hinzufügen
             const addItemMutation = `
               mutation {
                 addProjectV2ItemById(input: { projectId: "${projectId}", contentId: "${issue.node_id}" }) {
@@ -91,7 +88,6 @@ jobs:
             const addItemResult = await graphql(addItemMutation);
             const itemId = addItemResult.addProjectV2ItemById.item.id;
 
-            // 3. Felder automatisch ausfüllen
             for (const [label, value] of Object.entries(outputs)) {
               const fieldId = fieldMap[label];
               if (!fieldId || !value) continue;
