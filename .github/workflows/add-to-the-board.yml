@@ -9,7 +9,7 @@ permissions:
   issues: read
   id-token: write
   pull-requests: read
-  projects: write  # ✅ Wichtig: 'projects', nicht 'project'
+  project: write  # ✅ Wichtig: 'projects', nicht 'project'
 
 jobs:
   autofill-project:
