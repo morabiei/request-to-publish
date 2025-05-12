@@ -5,38 +5,35 @@ on:
     types: [opened]
 
 permissions:
-  issues: read
   contents: read
+  issues: read
   id-token: write
   pull-requests: read
-  projects: write  # Korrigiert: gültige Berechtigung für GraphQL-API-Zugriff
+  projects: write  # ✅ Wichtig: 'projects', nicht 'project'
 
 jobs:
   autofill-project:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Autofill project fields from issue
+      - name: Parse Issue Form
+        uses: stefanbuck/github-issue-parser@v3
+        id: issue-parser
+        with:
+          template-path: .github/ISSUE_TEMPLATE/foss-contribution.yml
+
+      - name: Autofill GitHub Project fields
         uses: actions/github-script@v7
         with:
           script: |
+            const projectId = "PVT_kwHOCMwB1M4A2ttm"; // Ersetze durch dein echtes ProjectV2 ID
             const issue = context.payload.issue;
-            const issueBody = issue.body;
-            const projectId = "PVT_kwHOCMwB1M4A2ttm"; // <-- Dein ProjectV2 ID
-
-            function extractField(label, body) {
-              const regex = new RegExp(`${label}\\n+(.+?)\\n`, 'i');
-              const match = body.match(regex);
-              return match ? match[1].trim() : '';
-            }
-
-            const fields = {
-              "Project Name": extractField("Project Name", issueBody),
-              "Internal repository for development and quality checks": extractField("Internal repository for development and quality checks \\(e\\.g\\. GitHub Enterprise\\)", issueBody),
-              "Project URL": extractField("Project URL", issueBody),
-              "GitHub Organization \\(Personal or Corporate\\)": extractField("GitHub Organization \\(Personal or Corporate\\)", issueBody),
-              "User ID": extractField("User ID", issueBody),
-              "License ID": extractField("License ID", issueBody),
+            const outputs = {
+              "Project Name": "${{ steps.issue-parser.outputs.issueparser_project_name }}",
+              "Internal repository": "${{ steps.issue-parser.outputs.issueparser_internal_repository }}",
+              "Project URL": "${{ steps.issue-parser.outputs.issueparser_project_url }}",
+              "GitHub Organization": "${{ steps.issue-parser.outputs.issueparser_github_organization }}",
+              "User ID": "${{ steps.issue-parser.outputs.issueparser_user_id }}",
+              "License ID": "${{ steps.issue-parser.outputs.issueparser_license_id }}"
             };
 
             const headers = {
@@ -58,7 +55,7 @@ jobs:
               return result.data;
             }
 
-            // 1. Felder abfragen mit Fragment auf Union-Typ
+            // 1. Felder abrufen
             const fieldQuery = `
               query {
                 node(id: "${projectId}") {
@@ -81,13 +78,10 @@ jobs:
               fieldMap[f.name] = f.id;
             }
 
-            // 2. Issue zum Projekt hinzufügen
+            // 2. Issue dem Projekt hinzufügen
             const addItemMutation = `
               mutation {
-                addProjectV2ItemById(input: {
-                  projectId: "${projectId}",
-                  contentId: "${issue.node_id}"
-                }) {
+                addProjectV2ItemById(input: { projectId: "${projectId}", contentId: "${issue.node_id}" }) {
                   item {
                     id
                   }
@@ -97,19 +91,18 @@ jobs:
             const addItemResult = await graphql(addItemMutation);
             const itemId = addItemResult.addProjectV2ItemById.item.id;
 
-            // 3. Felder ausfüllen
-            for (const [name, value] of Object.entries(fields)) {
-              const fieldId = fieldMap[name];
+            // 3. Felder automatisch ausfüllen
+            for (const [label, value] of Object.entries(outputs)) {
+              const fieldId = fieldMap[label];
               if (!fieldId || !value) continue;
+
               const updateMutation = `
                 mutation {
                   updateProjectV2ItemFieldValue(input: {
                     projectId: "${projectId}",
                     itemId: "${itemId}",
                     fieldId: "${fieldId}",
-                    value: {
-                      text: "${value.replace(/"/g, '\\"')}"
-                    }
+                    value: { text: "${value}" }
                   }) {
                     projectV2Item {
                       id
