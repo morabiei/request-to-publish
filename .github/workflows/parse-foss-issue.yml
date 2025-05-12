@@ -1,0 +1,26 @@
+name: Parse FOSS Contribution Issue
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  parse-issue:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Parse Issue using github-issue-parser
+        uses: stefanbuck/github-issue-parser@v3
+        id: issue-parser
+        with:
+          template-path: .github/ISSUE_TEMPLATE/foss-contribution-request.yml
+
+      - name: Show full JSON
+        run: echo "$ISSUE_JSON"
+        env:
+          ISSUE_JSON: ${{ steps.issue-parser.outputs.jsonString }}
+
+      - name: Access specific fields
+        run: |
+          echo "Project Name: ${{ steps.issue-parser.outputs.issueparser_project-name }}"
+          echo "License ID:   ${{ steps.issue-parser.outputs.issueparser_license }}"
