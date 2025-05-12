@@ -1,0 +1,74 @@
+name: Add FOSS Contribution Request to Project Board
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  autofill-project:
+    if: |
+      github.event.issue.title != null &&
+      contains(github.event.issue.title, '[FOSS Contribution]')
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      contents: read
+    env:
+      GH_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Parse issue with GitHub Issue Parser
+        uses: stefanbuck/github-issue-parser@v3
+        id: issue-parser
+        with:
+          template-path: .github/ISSUE_TEMPLATE/foss_contribution_request.yml
+
+      - name: Show parsed JSON
+        run: echo '${{ steps.issue-parser.outputs.issue-json }}'
+
+      - name: Create project item
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ env.GH_TOKEN }}
+          script: |
+            const issueNumber = context.issue.number;
+            const title = context.payload.issue.title;
+            const url = context.payload.issue.html_url;
+
+            const fields = {
+              "Project Name": `${{ steps.issue-parser.outputs.issueparser_project_name }}`,
+              "Internal repository": `${{ steps.issue-parser.outputs.issueparser_internal_repo }}`,
+              "Project URL": `${{ steps.issue-parser.outputs.issueparser_project_url }}`,
+              "GitHub Organization": `${{ steps.issue-parser.outputs.issueparser_target_org }}`,
+              "User ID": `${{ steps.issue-parser.outputs.issueparser_target_repo }}`,
+              "License ID": `${{ steps.issue-parser.outputs.issueparser_license }}`
+            };
+
+            const projectId = "PVT_kwHOCMwB1M4A2ttm"; // 🟡 <- Ersetze durch dein echtes Project Board ID
+
+            const query = `
+              mutation AddItemToProject($projectId: ID!, $title: String!, $url: String!) {
+                addProjectV2ItemById(input: {
+                  projectId: $projectId,
+                  content: {
+                    __typename: "Issue",
+                    url: $url
+                  }
+                }) {
+                  item {
+                    id
+                  }
+                }
+              }
+            `;
+
+            await github.graphql(query, {
+              projectId,
+              title,
+              url
+            });
+
+            console.log("Issue successfully added to the project board.");
