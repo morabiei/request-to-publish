@@ -24,7 +24,7 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const projectId = "PVT_kwHOCMwB1M4A2ttm"; // Ersetze durch deine echte ProjectV2 ID
+            const projectId = "7"; // Ersetze durch deine echte ProjectV2 ID
             const issue = context.payload.issue;
             const outputs = {
               "Project Name": "${{ steps.issue-parser.outputs.issueparser_project_name }}",
