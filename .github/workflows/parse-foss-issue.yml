@@ -23,4 +23,10 @@ jobs:
       - name: Access specific fields
         run: |
           echo "Project Name: ${{ steps.issue-parser.outputs.issueparser_project-name }}"
-          echo "License ID:   ${{ steps.issue-parser.outputs.issueparser_license }}"
+          echo "Internal Repository: ${{ steps.issue-parser.outputs.issueparser_internal-repo }}"
+          echo "Project URL: ${{ steps.issue-parser.outputs.issueparser_project-url }}"
+          echo "GitHub Organization: ${{ steps.issue-parser.outputs.issueparser_target-org }}"
+          echo "GitHub Repository: ${{ steps.issue-parser.outputs.issueparser_target-repo }}"
+          echo "License ID: ${{ steps.issue-parser.outputs.issueparser_license }}"
+          echo "Prerequisites: ${{ steps.issue-parser.outputs.issueparser_prerequisites }}"
+          echo "Additional Notes: ${{ steps.issue-parser.outputs.issueparser_notes }}"
