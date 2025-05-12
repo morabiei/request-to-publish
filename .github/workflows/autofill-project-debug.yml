@@ -1,0 +1,57 @@
+name: Autofill Project Board Fields
+
+on:
+  issues:
+    types: [opened, edited, reopened]
+
+jobs:
+  autofill-project:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Parse issue body
+        id: parser
+        uses: stefanbuck/github-issue-parser@v3
+        with:
+          template-path: 'request-to-publish/.github/ISSUE_TEMPLATE/foss_contribution_request.yml'
+
+      - name: Debug parsed issue fields
+        run: |
+          echo "Parsed Fields:"
+          echo "${{ steps.parser.outputs.json }}"
+
+      - name: Extract fields and update issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const parsed = JSON.parse(`${{ steps.parser.outputs.json }}`);
+
+            const getField = (id) => parsed[id]?.value || '';
+
+            const fields = {
+              "Project Name": getField("project-name"),
+              "Internal Repository": getField("internal-repo"),
+              "Project URL": getField("project-url"),
+              "GitHub Organization": getField("target-org"),
+              "User ID": getField("target-repo"),
+              "License ID": getField("license"),
+            };
+
+            console.log("Extracted Fields:");
+            console.log(fields);
+
+            const bodyLines = Object.entries(fields).map(([label, value]) =>
+              value ? `**${label}:** ${value}` : `**${label}:** _Not provided_`
+            );
+
+            const updatedBody = `${bodyLines.join('\n')}\n\n---\n\n${context.payload.issue.body}`;
+
+            await github.rest.issues.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: updatedBody
+            });
