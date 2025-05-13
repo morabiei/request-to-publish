@@ -36,12 +36,12 @@ jobs:
             const issue = context.payload.issue;
 
             const outputs = {
-              "Project Name": `${{ steps.issue-parser.outputs.issueparser_project_name }}`,
-              "Internal repository": `${{ steps.issue-parser.outputs.issueparser_internal_repo }}`,
-              "Project URL": `${{ steps.issue-parser.outputs.issueparser_project_url }}`,
-              "GitHub Organization": `${{ steps.issue-parser.outputs.issueparser_target_org }}`,
-              "User ID": `${{ steps.issue-parser.outputs.issueparser_target_repo }}`,
-              "License ID": `${{ steps.issue-parser.outputs.issueparser_license }}`
+  "Project Name": "${{ steps.issue-parser.outputs.issueparser_project_name }}",
+  "Internal repository": "${{ steps.issue-parser.outputs.issueparser_internal_repository_for_development_and_quality_checks_eg_github_enterprise }}",
+  "Project URL": "${{ steps.issue-parser.outputs.issueparser_project_url }}",
+  "GitHub Organization": "${{ steps.issue-parser.outputs.issueparser_github_organization_personal_or_corporate }}",
+  "User ID": "${{ steps.issue-parser.outputs.issueparser_user_id }}",
+  "License ID": "${{ steps.issue-parser.outputs.issueparser_license_id }}"
             };
 
             async function graphql(query, variables = {}) {
