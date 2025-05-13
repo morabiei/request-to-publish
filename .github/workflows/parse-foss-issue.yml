@@ -13,7 +13,7 @@ jobs:
         uses: stefanbuck/github-issue-parser@v3
         id: issue-parser
         with:
-          template-path: request-to-publish/.github/ISSUE_TEMPLATE/foss-contribution-request.yml
+          template-path: morabiei/request-to-publish/.github/ISSUE_TEMPLATE/foss-contribution-request.yml
 
       - name: Show full JSON
         run: echo "$ISSUE_JSON"
