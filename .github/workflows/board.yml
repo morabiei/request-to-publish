@@ -31,11 +31,11 @@ jobs:
             const issue = context.payload.issue;
 
             const outputs = {
-              "Project Name": `${{ steps.issue-parser.outputs.issueparser_project_name }}`,
-              "Internal repository": `${{ steps.issue-parser.outputs.issueparser_internal_repository }}`,
-              "Project URL": `${{ steps.issue-parser.outputs.issueparser_project_url }}`,
-              "GitHub Organization": `${{ steps.issue-parser.outputs.issueparser_target_org }}`,
-              "User ID": `${{ steps.issue-parser.outputs.issueparser_target_repo }}`,
+              "Project Name": `${{ steps.issue-parser.outputs.issueparser_project-name }}`,
+              "Internal repository": `${{ steps.issue-parser.outputs.issueparser_internal-repository }}`,
+              "Project URL": `${{ steps.issue-parser.outputs.issueparser_project-url }}`,
+              "GitHub Organization": `${{ steps.issue-parser.outputs.issueparser_target-org }}`,
+              "User ID": `${{ steps.issue-parser.outputs.issueparser_target-repo }}`,
               "License ID": `${{ steps.issue-parser.outputs.issueparser_license }}`
             };
 
