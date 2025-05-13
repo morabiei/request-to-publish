@@ -15,35 +15,35 @@ body:
         Please fill out the following information about the project and your intended contribution.
 
   - type: input
-    id: project-name
+    id: project_name
     attributes:
       label: "Project Name"
       description: "Please provide the name of the open-source project you want to contribute to."
       placeholder: "e.g. AwesomeProject"
 
   - type: input
-    id: internal-repo
+    id: internal_repo
     attributes:
       label: "Internal repository for development and quality checks (e.g. GitHub Enterprise)"
       description: "Please provide the URL of the internal repository used for development and quality assurance, typically hosted on a platform like GitHub Enterprise."
       placeholder: "e.g. https://github.company.com/org/project-repo"
 
   - type: input
-    id: project-url
+    id: project_url
     attributes:
       label: "Project URL"
       description: "Please provide the URL of the repository you want to contribute to."
       placeholder: "e.g. https://github.com/user/repository"
 
   - type: input
-    id: target-org
+    id: target_org
     attributes:
       label: "GitHub Organization (Personal or Corporate)"
       description: "From which organisation will you send the pull-request to the upstream project"
       placeholder: "e.g. https://github.com/yourusername or https://github.com/yourorganization"
 
   - type: input
-    id: target-repo
+    id: target_repo
     attributes:
       label: "User ID"
       description: "Please enter the contributor’s user identifier."
