@@ -18,16 +18,7 @@ jobs:
         uses: stefanbuck/github-issue-parser@v3
         id: issue-parser
         with:
-          template-path: request-to-publish/.github/ISSUE_TEMPLATE/foss_contribution_request.yml
-
-      - name: Debug parsed outputs
-        run: |
-          echo "Project Name: ${{ steps.issue-parser.outputs.project-name }}"
-          echo "Internal Repository: ${{ steps.issue-parser.outputs.internal-repo }}"
-          echo "Project URL: ${{ steps.issue-parser.outputs.project-url }}"
-          echo "GitHub Organization: ${{ steps.issue-parser.outputs.target-org }}"
-          echo "User ID: ${{ steps.issue-parser.outputs.target-repo }}"
-          echo "License ID: ${{ steps.issue-parser.outputs.license }}"
+          template-path: .github/ISSUE_TEMPLATE/foss_contribution_request.yml
 
       - name: Autofill GitHub Project fields
         uses: actions/github-script@v7
@@ -36,16 +27,16 @@ jobs:
         with:
           script: |
             const token = process.env.MY_GITHUB_TOKEN;
-            const projectId = "PVT_kwHOCMwB1M4A2ttm";
+            const projectId = "PVT_kwHOCMwB1M4A2ttm"; // Deine echte ProjectV2 ID hier eintragen
             const issue = context.payload.issue;
 
             const outputs = {
-              "Project Name": "${{ steps.issue-parser.outputs.project-name }}",
-              "Internal repository": "${{ steps.issue-parser.outputs.internal-repo }}",
-              "Project URL": "${{ steps.issue-parser.outputs.project-url }}",
-              "GitHub Organization": "${{ steps.issue-parser.outputs.target-org }}",
-              "User ID": "${{ steps.issue-parser.outputs.target-repo }}",
-              "License ID": "${{ steps.issue-parser.outputs.license }}"
+              "Project Name": `${{ steps.issue-parser.outputs.issueparser_project_name }}`,
+              "Internal repository": `${{ steps.issue-parser.outputs.issueparser_internal_repository }}`,
+              "Project URL": `${{ steps.issue-parser.outputs.issueparser_project_url }}`,
+              "GitHub Organization": `${{ steps.issue-parser.outputs.issueparser_target_org }}`,
+              "User ID": `${{ steps.issue-parser.outputs.issueparser_target_repo }}`,
+              "License ID": `${{ steps.issue-parser.outputs.issueparser_license }}`
             };
 
             async function graphql(query, variables = {}) {
@@ -57,6 +48,7 @@ jobs:
                 },
                 body: JSON.stringify({ query, variables }),
               });
+
               const result = await response.json();
               if (result.errors) {
                 console.error("GraphQL Errors:", result.errors);
@@ -65,6 +57,7 @@ jobs:
               return result.data;
             }
 
+            // 1. Felder des Projekts abfragen
             const fieldQuery = `
               query {
                 node(id: "${projectId}") {
@@ -89,6 +82,7 @@ jobs:
               fieldMap[f.name] = f.id;
             }
 
+            // 2. Issue dem Project hinzufügen
             const addItemMutation = `
               mutation {
                 addProjectV2ItemById(input: { projectId: "${projectId}", contentId: "${issue.node_id}" }) {
@@ -101,12 +95,10 @@ jobs:
             const addItemResult = await graphql(addItemMutation);
             const itemId = addItemResult.addProjectV2ItemById.item.id;
 
+            // 3. Felder befüllen
             for (const [label, value] of Object.entries(outputs)) {
               const fieldId = fieldMap[label];
-              if (!fieldId || !value) {
-                console.log(`Skipping field "${label}" because it's empty or not found.`);
-                continue;
-              }
+              if (!fieldId || !value) continue;
 
               const updateMutation = `
                 mutation {
@@ -114,7 +106,7 @@ jobs:
                     projectId: "${projectId}",
                     itemId: "${itemId}",
                     fieldId: "${fieldId}",
-                    value: { text: """${value}""" }
+                    value: { text: "${value}" }
                   }) {
                     projectV2Item {
                       id
@@ -123,5 +115,5 @@ jobs:
                 }
               `;
               await graphql(updateMutation);
-              console.log(`✅ Field "${label}" updated with value "${value}"`);
             }
+
