@@ -11,7 +11,7 @@ permissions:
   pull-requests: read
 
 jobs:
-  autofill-project:
+  autofill-project:  # <--- Kein Einrückungsfehler mehr!
     runs-on: ubuntu-latest
     steps:
       - name: Parse Issue Form
@@ -32,16 +32,16 @@ jobs:
         with:
           script: |
             const token = process.env.MY_GITHUB_TOKEN;
-            const projectId = "PVT_kwHOCMwB1M4A2ttm"; // Deine echte ProjectV2-ID
+            const projectId = "PVT_kwHOCMwB1M4A2ttm";
             const issue = context.payload.issue;
 
             const outputs = {
-  "Project Name": "${{ steps.issue-parser.outputs.issueparser_project_name }}",
-  "Internal repository": "${{ steps.issue-parser.outputs.issueparser_internal_repository_for_development_and_quality_checks_eg_github_enterprise }}",
-  "Project URL": "${{ steps.issue-parser.outputs.issueparser_project_url }}",
-  "GitHub Organization": "${{ steps.issue-parser.outputs.issueparser_github_organization_personal_or_corporate }}",
-  "User ID": "${{ steps.issue-parser.outputs.issueparser_user_id }}",
-  "License ID": "${{ steps.issue-parser.outputs.issueparser_license_id }}"
+              "Project Name": `${{ steps.issue-parser.outputs.issueparser_project_name }}`,
+              "Internal repository": `${{ steps.issue-parser.outputs.issueparser_internal_repository_for_development_and_quality_checks_eg_github_enterprise }}`,
+              "Project URL": `${{ steps.issue-parser.outputs.issueparser_project_url }}`,
+              "GitHub Organization": `${{ steps.issue-parser.outputs.issueparser_github_organization_personal_or_corporate }}`,
+              "User ID": `${{ steps.issue-parser.outputs.issueparser_user_id }}`,
+              "License ID": `${{ steps.issue-parser.outputs.issueparser_license_id }}`
             };
 
             async function graphql(query, variables = {}) {
@@ -62,7 +62,6 @@ jobs:
               return result.data;
             }
 
-            // Felder vom Projekt abfragen
             const fieldQuery = `
               query {
                 node(id: "${projectId}") {
@@ -87,7 +86,6 @@ jobs:
               fieldMap[f.name] = f.id;
             }
 
-            // Issue dem Project hinzufügen
             const addItemMutation = `
               mutation {
                 addProjectV2ItemById(input: { projectId: "${projectId}", contentId: "${issue.node_id}" }) {
@@ -100,7 +98,6 @@ jobs:
             const addItemResult = await graphql(addItemMutation);
             const itemId = addItemResult.addProjectV2ItemById.item.id;
 
-            // Felder befüllen
             for (const [label, value] of Object.entries(outputs)) {
               const fieldId = fieldMap[label];
               if (!fieldId || !value) {
