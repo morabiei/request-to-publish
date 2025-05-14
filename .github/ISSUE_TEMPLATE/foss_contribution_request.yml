@@ -38,7 +38,7 @@ body:
   - type: input
     id: target_org
     attributes:
-      label: "GitHub Organization (Personal or Corporate)"
+      label: "GitHub Organisation"
       description: "From which organisation will you send the pull-request to the upstream project"
       placeholder: "e.g. https://github.com/yourusername or https://github.com/yourorganization"
 
