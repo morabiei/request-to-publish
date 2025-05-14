@@ -11,7 +11,7 @@ permissions:
   pull-requests: read
 
 jobs:
-  autofill-project:  # <--- Kein Einrückungsfehler mehr!
+  autofill-project:
     runs-on: ubuntu-latest
     steps:
       - name: Parse Issue Form
@@ -29,6 +29,12 @@ jobs:
         uses: actions/github-script@v7
         env:
           MY_GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
+          PROJECT_NAME: ${{ steps.issue-parser.outputs.issueparser_project_name }}
+          INTERNAL_REPO: ${{ steps.issue-parser.outputs.issueparser_internal_repository_for_development_and_quality_checks_eg_github_enterprise }}
+          PROJECT_URL: ${{ steps.issue-parser.outputs.issueparser_project_url }}
+          GITHUB_ORG: ${{ steps.issue-parser.outputs.issueparser_github_organisation }}
+          USER_ID: ${{ steps.issue-parser.outputs.issueparser_user_id }}
+          LICENSE_ID: ${{ steps.issue-parser.outputs.issueparser_license_id }}
         with:
           script: |
             const token = process.env.MY_GITHUB_TOKEN;
@@ -36,12 +42,12 @@ jobs:
             const issue = context.payload.issue;
 
             const outputs = {
-              "Project Name": `${{ steps.issue-parser.outputs.issueparser_project_name }}`,
-              "Internal repository": `${{ steps.issue-parser.outputs.issueparser_internal_repository_for_development_and_quality_checks_eg_github_enterprise }}`,
-              "Project URL": `${{ steps.issue-parser.outputs.issueparser_project_url }}`,
-              "GitHub Organisation": "${{ steps.issue-parser.outputs.issueparser_github_organisation }}",
-              "User ID": `${{ steps.issue-parser.outputs.issueparser_user_id }}`,
-              "License ID": `${{ steps.issue-parser.outputs.issueparser_license_id }}`
+              "Project Name": process.env.PROJECT_NAME,
+              "Internal repository": process.env.INTERNAL_REPO,
+              "Project URL": process.env.PROJECT_URL,
+              "GitHub Organisation": process.env.GITHUB_ORG,
+              "User ID": process.env.USER_ID,
+              "License ID": process.env.LICENSE_ID
             };
 
             async function graphql(query, variables = {}) {
@@ -53,7 +59,6 @@ jobs:
                 },
                 body: JSON.stringify({ query, variables }),
               });
-
               const result = await response.json();
               if (result.errors) {
                 console.error("GraphQL Errors:", result.errors);
