@@ -14,12 +14,11 @@ jobs:
   autofill-project:
     runs-on: ubuntu-latest
     steps:
-      - name: Parse issue form values
+      - name: Parse Issue Form
+        uses: stefanbuck/github-issue-parser@v3
         id: issue-parser
-        uses: zentered/issue-forms-body-parser@v2.1.0
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          issue_id: ${{ github.event.issue.number }}
+          template-path: .github/ISSUE_TEMPLATE/foss_contribution_request.yml
 
       - name: Debug parsed outputs
         run: |
@@ -30,12 +29,12 @@ jobs:
         uses: actions/github-script@v7
         env:
           MY_GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
-          PROJECT_NAME: ${{ steps.issue-parser.outputs.project_name }}
-          INTERNAL_REPO: ${{ steps.issue-parser.outputs.internal_repository_for_development_and_quality_checks_eg_github_enterprise }}
-          PROJECT_URL: ${{ steps.issue-parser.outputs.project_url }}
-          GITHUB_ORG: ${{ steps.issue-parser.outputs.github_organisation }}
-          USER_ID: ${{ steps.issue-parser.outputs.user_id }}
-          LICENSE_ID: ${{ steps.issue-parser.outputs.license_id }}
+          PROJECT_NAME: ${{ steps.issue-parser.outputs.issueparser_project_name }}
+          INTERNAL_REPO: ${{ steps.issue-parser.outputs.issueparser_internal_repository_for_development_and_quality_checks_eg_github_enterprise }}
+          PROJECT_URL: ${{ steps.issue-parser.outputs.issueparser_project_url }}
+          GITHUB_ORG: ${{ steps.issue-parser.outputs.issueparser_github_organisation }}
+          USER_ID: ${{ steps.issue-parser.outputs.issueparser_user_id }}
+          LICENSE_ID: ${{ steps.issue-parser.outputs.issueparser_license_id }}
         with:
           script: |
             const token = process.env.MY_GITHUB_TOKEN;
@@ -86,9 +85,14 @@ jobs:
             `;
             const fieldData = await graphql(fieldQuery);
             if (!fieldData?.node) throw new Error("❌ Project ID ungültig oder kein Zugriff");
+
             const fieldMap = {};
             for (const f of fieldData.node.fields.nodes) {
               fieldMap[f.name] = f.id;
+            }
+            console.log("ℹ️ Alle verfügbaren Felder im Projekt:");
+            for (const f of fieldData.node.fields.nodes) {
+            console.log(`➡️ ${f.name}`);
             }
 
             const addItemMutation = `
