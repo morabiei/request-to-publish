@@ -90,6 +90,10 @@ jobs:
             for (const f of fieldData.node.fields.nodes) {
               fieldMap[f.name] = f.id;
             }
+            console.log("ℹ️ Alle verfügbaren Felder im Projekt:");
+            for (const f of fieldData.node.fields.nodes) {
+            console.log(`➡️ ${f.name}`);
+            }
 
             const addItemMutation = `
               mutation {
