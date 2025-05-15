@@ -23,7 +23,7 @@ jobs:
       - name: Debug parsed outputs
         run: |
           echo "Parsed issue form values:"
-          echo "${{ toJSON(steps.issue-parser.outputs) }}"
+          printf '%s\n' "${{ toJSON(steps.issue-parser.outputs) }}"
 
       - name: Autofill GitHub Project fields
         uses: actions/github-script@v7
@@ -40,7 +40,6 @@ jobs:
             const token = process.env.MY_GITHUB_TOKEN;
             const projectId = "PVT_kwHOCMwB1M4A2ttm";
             const issue = context.payload.issue;
-
             const outputs = {
               "Project Name": process.env.PROJECT_NAME,
               "Internal repository": process.env.INTERNAL_REPO,
@@ -67,6 +66,7 @@ jobs:
               return result.data;
             }
 
+            // Debug: Alle verfügbaren Felder im Projekt ausgeben
             const fieldQuery = `
               query {
                 node(id: "${projectId}") {
@@ -86,13 +86,14 @@ jobs:
             const fieldData = await graphql(fieldQuery);
             if (!fieldData?.node) throw new Error("❌ Project ID ungültig oder kein Zugriff");
 
+            console.log("ℹ️ Alle verfügbaren Felder im Projekt:");
+            for (const f of fieldData.node.fields.nodes) {
+              console.log(`➡️ ${f.name}`);
+            }
+
             const fieldMap = {};
             for (const f of fieldData.node.fields.nodes) {
               fieldMap[f.name] = f.id;
-            }
-            console.log("ℹ️ Alle verfügbaren Felder im Projekt:");
-            for (const f of fieldData.node.fields.nodes) {
-            console.log(`➡️ ${f.name}`);
             }
 
             const addItemMutation = `
@@ -113,7 +114,6 @@ jobs:
                 console.log(`⚠️ Skip field '${label}' (no fieldId or value)`);
                 continue;
               }
-
               const updateMutation = `
                 mutation {
                   updateProjectV2ItemFieldValue(input: {
