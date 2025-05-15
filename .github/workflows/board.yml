@@ -11,36 +11,46 @@ permissions:
   pull-requests: read
 
 jobs:
-  autofill-project: 
+  autofill-project:
     runs-on: ubuntu-latest
     steps:
-      - name: Parse Issue Form
-        uses: stefanbuck/github-issue-parser@v3
+      - name: Parse issue form values
         id: issue-parser
+        uses: zentered/issue-forms-body-parser@v2.1.0
         with:
-          template-path: .github/ISSUE_TEMPLATE/foss_contribution_request.yml
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          issue_id: ${{ github.event.issue.number }}
 
       - name: Debug parsed outputs
         run: |
           echo "Parsed issue form values:"
           echo "${{ toJSON(steps.issue-parser.outputs) }}"
+
       - name: Autofill GitHub Project fields
         uses: actions/github-script@v7
         env:
           MY_GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
+          PROJECT_NAME: ${{ steps.issue-parser.outputs.project_name }}
+          INTERNAL_REPO: ${{ steps.issue-parser.outputs.internal_repository_for_development_and_quality_checks_eg_github_enterprise }}
+          PROJECT_URL: ${{ steps.issue-parser.outputs.project_url }}
+          GITHUB_ORG: ${{ steps.issue-parser.outputs.github_organisation }}
+          USER_ID: ${{ steps.issue-parser.outputs.user_id }}
+          LICENSE_ID: ${{ steps.issue-parser.outputs.license_id }}
         with:
           script: |
             const token = process.env.MY_GITHUB_TOKEN;
             const projectId = "PVT_kwHOCMwB1M4A2ttm";
             const issue = context.payload.issue;
+
             const outputs = {
-              "Project Name": `${{ steps.issue-parser.outputs.issueparser_project_name }}`,
-              "Internal repository": `${{ steps.issue-parser.outputs.issueparser_internal_repository_for_development_and_quality_checks_eg_github_enterprise }}`,
-              "Project URL": `${{ steps.issue-parser.outputs.issueparser_project_url }}`,
-              "GitHub Organisation": "${{ steps.issue-parser.outputs.issueparser_github_organisation }}",
-              "User ID": `${{ steps.issue-parser.outputs.issueparser_user_id }}`,
-              "License ID": `${{ steps.issue-parser.outputs.issueparser_license_id }}`
+              "Project Name": process.env.PROJECT_NAME,
+              "Internal repository": process.env.INTERNAL_REPO,
+              "Project URL": process.env.PROJECT_URL,
+              "GitHub Organisation": process.env.GITHUB_ORG,
+              "User ID": process.env.USER_ID,
+              "License ID": process.env.LICENSE_ID
             };
+
             async function graphql(query, variables = {}) {
               const response = await fetch("https://api.github.com/graphql", {
                 method: "POST",
@@ -57,6 +67,7 @@ jobs:
               }
               return result.data;
             }
+
             const fieldQuery = `
               query {
                 node(id: "${projectId}") {
@@ -79,6 +90,7 @@ jobs:
             for (const f of fieldData.node.fields.nodes) {
               fieldMap[f.name] = f.id;
             }
+
             const addItemMutation = `
               mutation {
                 addProjectV2ItemById(input: { projectId: "${projectId}", contentId: "${issue.node_id}" }) {
@@ -90,12 +102,14 @@ jobs:
             `;
             const addItemResult = await graphql(addItemMutation);
             const itemId = addItemResult.addProjectV2ItemById.item.id;
+
             for (const [label, value] of Object.entries(outputs)) {
               const fieldId = fieldMap[label];
               if (!fieldId || !value) {
                 console.log(`⚠️ Skip field '${label}' (no fieldId or value)`);
                 continue;
               }
+
               const updateMutation = `
                 mutation {
                   updateProjectV2ItemFieldValue(input: {
@@ -113,4 +127,3 @@ jobs:
               await graphql(updateMutation);
               console.log(`✅ Updated field '${label}' with value '${value}'`);
             }
-
