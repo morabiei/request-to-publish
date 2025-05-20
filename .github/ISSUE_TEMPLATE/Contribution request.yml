@@ -1,0 +1,17 @@
+name: Contribution Request
+description: Use this form to submit a contribution.
+
+title:
+  label: Title
+  description: Enter a concise title.
+  required: true
+  type: text
+
+body:
+  label: Description
+  description: |
+    Describe your contribution.  
+    After entering title and description, create the issue first,  
+    then fill out the fields on the right (Labels, Projects, Status, etc.).
+  required: true
+  type: textarea
