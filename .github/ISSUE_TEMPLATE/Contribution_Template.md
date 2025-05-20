@@ -28,4 +28,4 @@ assignees: ''
 
 ⚠️**Please note:** 
 After entering your **title** and **description**, please **create the issue first**.  
-Once created, complete the additional fields on the right side of the page.
+Then fill out the additional information which is going to be shown after creating the issue on the right side of the page.
