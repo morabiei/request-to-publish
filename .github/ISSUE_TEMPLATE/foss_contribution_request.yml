@@ -26,7 +26,7 @@ body:
     attributes:
       label: "Internal repository for development and quality checks (e.g. GitHub Enterprise)"
       description: "Please provide the URL of the internal repository used for development and quality assurance, typically hosted on a platform like GitHub Enterprise."
-      placeholder: "e.g. https://github.company.com/org/project-repo"
+      placeholder: "e.g. https://git.i.mercedes-benz.com"
 
   - type: input
     id: project_url
@@ -48,12 +48,6 @@ body:
       label: "User ID"
       description: "Please enter the contributor’s user identifier."
       placeholder: "e.g. user_9283"
-
-  - type: markdown
-    attributes:
-      value: |
-        ### Strategic FOSS Platform
-        Please make sure you are contributing on an [approved platform](https://fosswik-confluence.dot.app.corpintra.net/display/0064/Approved+FOSS+Platforms).
 
   - type: input
     id: license
