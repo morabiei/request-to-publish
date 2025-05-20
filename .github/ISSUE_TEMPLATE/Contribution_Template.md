@@ -5,4 +5,6 @@ title: FOSS Contribution
 assignees: ''
 
 ---
-
+**Please note:** 
+After entering your **title** and **description**, please **create the issue first**.  
+> Then fill out the information shown on the right side.
