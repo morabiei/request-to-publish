@@ -90,6 +90,11 @@ jobs:
               }
             `;
             const fieldData = await graphql(fieldQuery);
+            console.log("ℹ️ Alle verfügbaren Felder im Projekt:");
+            for (const f of fieldData.node.fields.nodes) {
+            console.log(`➡️ ${f.name}`);
+            }
+
             if (!fieldData?.node) throw new Error("❌ Project ID ungültig oder kein Zugriff");
 
             const fieldMap = {};
